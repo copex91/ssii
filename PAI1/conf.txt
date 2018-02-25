@@ -1,2 +1,2 @@
-algHashing=sha384
-ficheros=['/home/darkgray/Desktop/archivosAComprobar/asdf.txt', '/home/darkgray/Desktop/archivosAComprobar/fdsa.txt']
+{ "algHashing": "sha384",
+"ficheros": ["fichero1.txt", "fichero2.txt"]}

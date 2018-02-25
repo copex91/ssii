@@ -1,14 +1,18 @@
 import hashlib
-from os import listdir
+import json
 from os.path import isdir, islink
 
-config = {}
-with open("Downloads/Telegram Desktop/conf.txt") as f:
-    for line in f.readlines():
-       (key, val) = line.split("=")
-       config[key] = val.replace('\n', '')
+# config = {}
+# with open("conf.txt") as f:
+#     for line in f.readlines():
+#        (key, val) = line.split("=")
+#        config[key] = val.replace('\n', '')
 
-documents = config['ficheros'].split(',')
+#Leer archivo de config
+with open('conf.txt', 'r') as f:
+    config = json.load(f)
+
+documents = config['ficheros']
 for d in documents:
     filename = d
     if not isdir(filename) and not islink(filename):
