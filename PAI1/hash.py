@@ -3,19 +3,22 @@
 
 import hashlib
 import json
-from os.path import isdir, islink
-from datetime import datetime
+import os
+import datetime
 import sched, time
+import plotly.offline as py
+import plotly.graph_objs as go
 
 try:
     with open('conf.txt', 'r') as f:
         config = json.load(f)
-        hoursPeriod = config['periodo'] #Horas tras las que se debe repetir el chequeo
+        hoursPeriod = config['periodo'] #Horas tras las que se debe repetir el chequeo. Para pruebas, se deja en segundos
 except:
     print ("Archivo de configuración conf.txt no encontrado")
 else:
     s = sched.scheduler(time.time, time.sleep)
     def chequear_integridad(sc):
+        today = datetime.datetime.now()
         #Leer archivo de config. Si no existe, no debería seguir con el programa
         try:
             with open('conf.txt', 'r') as f:
@@ -27,6 +30,7 @@ else:
             errores = 0
             analizados = 0
             logErrores = ""
+
             # Leer hashes almacenados
             results = {}
             results['hashes'] = {}
@@ -40,7 +44,7 @@ else:
             documents = config['ficheros']
             for d in documents:
                 filename = d
-                if not isdir(filename) and not islink(filename):
+                if not os.path.isdir(filename) and not os.path.islink(filename):
                  try:
                     f = open(filename)
                  except IOError, e:
@@ -59,7 +63,7 @@ else:
                     else:
                         if results['hashes'][filename] != h:
                             #Almacenar los errores que se vayan produciendo
-                            logErrores += datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " -- Error: Fichero %s comprometido\n" % filename
+                            logErrores += today.strftime("%Y-%m-%d %H:%M:%S") + " -- Error: Fichero %s comprometido\n" % filename
                             errores+=1
                             analizados+=1
                             print("Chequeo de hash fallido")
@@ -69,13 +73,13 @@ else:
                     print ""
             #Escribir los resultados en archivo de results
             try:
-                results[datetime.now().strftime("%Y%m")]
+                results[today.strftime("%Y%m")]
             except:
                 #El mes todavía no existía, se crea
-                results[datetime.now().strftime("%Y%m")] = [[errores, analizados]]
+                results[today.strftime("%Y%m")] = [[errores, analizados]]
             else:
                 #El mes ya existía, se añade un nuevo par de datos
-                results[datetime.now().strftime("%Y%m")].append([errores, analizados])
+                results[today.strftime("%Y%m")].append([errores, analizados])
 
             #Almacenar archivo de resultados y log
             try:
@@ -90,6 +94,37 @@ else:
                     f.close()
             except:
                 pass
+
+            #Si estamos a día 1, generar el gráfico del mes anterior
+            #Para pruebas, se aconseja cambiar el día 01 por el día actual
+            if today.strftime("%d") == "01":
+                #Crear carpeta graphs si no existe, para a
+                if not os.path.exists("graphs"):
+                    os.makedirs("graphs")
+                #Localizar mes anterior
+                first = today.replace(day=1)
+                lastMonth = first - datetime.timedelta(days=1)
+                cont = 0
+                x = []
+                y = []
+                try:
+                    for i in results[lastMonth.strftime("%Y%m")]:
+                        cont+=1
+                        x.append(cont)
+                        y.append(float(i[0])/i[1])
+                except:
+                    pass
+                else:
+                    trace = go.Scatter(x=x, y=y, marker=dict(color='rgb(128, 0, 0)', ))
+
+                    py.plot({
+                        "data": [
+                            trace
+                        ],
+                        "layout": go.Layout(title="Dialy integrity ratio for month " + lastMonth.strftime("%m/%Y"), font=dict(family='Courier New, monospace', size=18, color='rgb(0,0,0)'))
+                                              },filename= "graphs/" + lastMonth.strftime("%Y%m") + '.html',image='jpeg',auto_open=False)
+
         s.enter(float(hoursPeriod), 1, chequear_integridad, (s,))
-    s.enter(float(hoursPeriod), 1, chequear_integridad, (s,))
+
+    s.enter(0, 1, chequear_integridad, (s,))
     s.run()
