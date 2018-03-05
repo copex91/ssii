@@ -13,6 +13,7 @@ try:
     with open('conf.txt', 'r') as f:
         config = json.load(f)
         hoursPeriod = config['periodo'] #Horas tras las que se debe repetir el chequeo. Para pruebas, se deja en segundos
+        threshold = config['threshold'] #Umbral
 except:
     print ("Archivo de configuración conf.txt no encontrado")
 else:
@@ -97,7 +98,7 @@ else:
 
             #Si estamos a día 1, generar el gráfico del mes anterior
             #Para pruebas, se aconseja cambiar el día 01 por el día actual
-            if today.strftime("%d") == "01":
+            if today.strftime("%d") == "05":
                 #Crear carpeta graphs si no existe, para a
                 if not os.path.exists("graphs"):
                     os.makedirs("graphs")
@@ -107,19 +108,22 @@ else:
                 cont = 0
                 x = []
                 y = []
+                threshold_line = []
                 try:
                     for i in results[lastMonth.strftime("%Y%m")]:
                         cont+=1
                         x.append(cont)
-                        y.append(float(i[0])/i[1])
+                        y.append((float(i[0]) * 100)/i[1])
+                        threshold_line.append(threshold)
                 except:
                     pass
                 else:
-                    trace = go.Scatter(x=x, y=y, marker=dict(color='rgb(128, 0, 0)', ))
+                    trace1 = go.Scatter(x=x, y=y, marker=dict(color='rgb(, 0, 128)', ), name='ratio')
+                    trace2 = go.Scatter(x=x, y=threshold_line, marker=dict(color='rgb(128, 0, 0)', ), name='threshold')
 
                     py.plot({
                         "data": [
-                            trace
+                            trace1, trace2
                         ],
                         "layout": go.Layout(title="Dialy integrity ratio for month " + lastMonth.strftime("%m/%Y"), font=dict(family='Courier New, monospace', size=18, color='rgb(0,0,0)'))
                                               },filename= "graphs/" + lastMonth.strftime("%Y%m") + '.html',image='jpeg',auto_open=False)

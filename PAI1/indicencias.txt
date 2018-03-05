@@ -65,3 +65,9 @@
 2018-03-04 20:06:45 -- Error: Fichero fichero2.txt comprometido
 2018-03-04 20:06:50 -- Error: Fichero fichero1.txt comprometido
 2018-03-04 20:06:50 -- Error: Fichero fichero2.txt comprometido
+2018-03-05 14:48:24 -- Error: Fichero fichero1.txt comprometido
+2018-03-05 14:48:24 -- Error: Fichero fichero2.txt comprometido
+2018-03-05 14:48:38 -- Error: Fichero fichero1.txt comprometido
+2018-03-05 14:48:38 -- Error: Fichero fichero2.txt comprometido
+2018-03-05 14:49:51 -- Error: Fichero fichero1.txt comprometido
+2018-03-05 14:49:51 -- Error: Fichero fichero2.txt comprometido
