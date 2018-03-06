@@ -51,7 +51,7 @@ else:
                      try:
                         f = open(filename)
                      except IOError, e:
-                        print e
+                         print "** Error en el fichero o en el directorio: "+ filename + " **\n"
                      else:
                         data = f.read()
                         f.close()
