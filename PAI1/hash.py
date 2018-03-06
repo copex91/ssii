@@ -98,7 +98,7 @@ else:
 
             #Si estamos a día 1, generar el gráfico del mes anterior
             #Para pruebas, se aconseja cambiar el día 01 por el día actual
-            if today.strftime("%d") == "05":
+            if today.strftime("%d") == "01":
                 #Crear carpeta graphs si no existe, para a
                 if not os.path.exists("graphs"):
                     os.makedirs("graphs")
