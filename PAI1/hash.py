@@ -12,7 +12,7 @@ import plotly.graph_objs as go
 try:
     with open('conf.txt', 'r') as f:
         config = json.load(f)
-        hoursPeriod = config['periodo'] #Horas tras las que se debe repetir el chequeo. Para pruebas, se deja en segundos
+        hoursPeriod = config['periodo']*3600 #Horas tras las que se debe repetir el chequeo. Para pruebas, se deja en segundos
         threshold = config['threshold'] #Umbral
 except:
     print ("Archivo de configuración conf.txt no encontrado")
