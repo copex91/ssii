@@ -1,5 +1,5 @@
 { "algHashing": "sha384",
 "ficheros": ["fichero1.txt", "fichero2.txt"],
-"incidencias": "indicencias",
+"incidencias": "incidencias",
 "periodo": "5",
 "threshold": "25"}
