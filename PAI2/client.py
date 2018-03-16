@@ -1,6 +1,7 @@
 import socket
 import struct
-
+import hashlib
+import hmac
 
 def _get_block(s, count):
     if count <= 0:
@@ -62,11 +63,18 @@ def send_msg(s, data):
 def client(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect(('localhost', port))
-    print get_msg(s)
+    origen = input("Introduza cuenta origen: ")
+    destino = input("Introduzca cuenta destino: ")
+    cantidad = input("Introduzca cantidad: ")
+    mensaje = str(origen) + " " + str(destino) + " " + str(cantidad)
+    # mensaje = "100 200 50"
+    clave = "c1314ed6"
+    hash = hmac.new(clave, mensaje, hashlib.sha1)
+    send_msg(s, mensaje + " " + hash.hexdigest())
+
     print get_msg(s)
     s.shutdown(socket.SHUT_RDWR)
     s.close()
-
 
 if __name__ == '__main__':
     client(8080)

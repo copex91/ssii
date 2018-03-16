@@ -1,5 +1,7 @@
 import socket
 import struct
+import hashlib
+import hmac
 
 def _get_block(s, count):
     if count <= 0:
@@ -62,11 +64,20 @@ def server(port):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('localhost', port))
-    s.listen(1)
-    c, addr = s.accept()
-    send_msg(c, 'hello')
-    send_msg(c, 'there')
-    c.close()
+    while True:
+        s.listen(1)
+        c, addr = s.accept()
+        mensaje = get_msg(c)
+        [origen, destino, cantidad, hash] = mensaje.split(" ")
+
+        mensaje_nuevo = str(origen) + " " + str(destino) + " " + str(cantidad)
+        clave = "c1314ed6"
+        hash_nuevo = hmac.new(clave, mensaje_nuevo, hashlib.sha1).hexdigest()
+
+        if hash == hash_nuevo:
+            send_msg(c, "Se han transferido " + str(cantidad) + " euros desde la cuenta " + str(
+                origen) + " a la cuenta " + str(destino))
+        c.close()
     s.close()
 
 if __name__ == '__main__':
