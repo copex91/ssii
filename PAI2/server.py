@@ -1,7 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import socket
 import struct
 import hashlib
 import hmac
+import random
 
 def _get_block(s, count):
     if count <= 0:
@@ -61,24 +65,40 @@ def send_msg(s, data):
 
 
 def server(port):
+    #Creación del socket del servidor
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     s.bind(('localhost', port))
     while True:
+        #Permanecer en escucha de nuevas conexiones
         s.listen(1)
+
+        #Aceptar nueva conexión entrante
         c, addr = s.accept()
-        mensaje = get_msg(c)
-        [origen, destino, cantidad, hash] = mensaje.split(" ")
+        try:
+            #Generar y enviar nonce para la nueva conexión entrante
+            nonce = ''.join([str(random.randint(0, 9)) for i in range(16)])
+            send_msg(c, nonce)
 
-        mensaje_nuevo = str(origen) + " " + str(destino) + " " + str(cantidad)
-        clave = "c1314ed6"
-        hash_nuevo = hmac.new(clave, mensaje_nuevo, hashlib.sha1).hexdigest()
+            #Recibir transacción que el cliente desea realizar
+            mensaje = get_msg(c)
+            [origen, destino, cantidad, hash] = mensaje.split("&")
 
-        if hash == hash_nuevo:
-            send_msg(c, "Se han transferido " + str(cantidad) + " euros desde la cuenta " + str(
-                origen) + " a la cuenta " + str(destino))
+            #Chequear integridad del mensaje
+            mensaje_nuevo = str(origen) + "&" + str(destino) + "&" + str(cantidad) + "&" + str(nonce)
+            clave = "c1314ed6"
+            hash_nuevo = hmac.new(clave, mensaje_nuevo, hashlib.sha1).hexdigest()
+
+            #Enviar respuesta al cliente
+            if hash == hash_nuevo:
+                send_msg(c, "Se han transferido " + str(cantidad) + " euros desde la cuenta " + str(
+                    origen) + " a la cuenta " + str(destino))
+            else:
+                send_msg(c, "Error, inténtelo de nuevo más tarde.")
+        except:
+            pass
         c.close()
-    s.close()
+
 
 if __name__ == '__main__':
     server(8080)
