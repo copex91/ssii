@@ -1,4 +1,3 @@
 { "algHashing": "sha384",
 "clave": "c1314ed6",
-"periodo": "24",
-"threshold": "25"}
+"threshold": "80"}
