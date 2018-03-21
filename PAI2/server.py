@@ -3,9 +3,12 @@
 
 import socket
 import struct
-import hashlib
 import hmac
 import random
+import hashlib
+import json
+import datetime
+
 
 def _get_block(s, count):
     if count <= 0:
@@ -65,40 +68,87 @@ def send_msg(s, data):
 
 
 def server(port):
-    #Creación del socket del servidor
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(('localhost', port))
-    while True:
-        #Permanecer en escucha de nuevas conexiones
-        s.listen(1)
+    try:
+        # Leer fichero de configuración
+        with open('configServer.txt', 'r') as f:
+            config = json.load(f)
+            algHashing = config['algHashing']
+            clave = config['clave']
 
-        #Aceptar nueva conexión entrante
-        c, addr = s.accept()
+        # Leer fichero de resultados
+        results = {}
         try:
-            #Generar y enviar nonce para la nueva conexión entrante
-            nonce = ''.join([str(random.randint(0, 9)) for i in range(16)])
-            send_msg(c, nonce)
-
-            #Recibir transacción que el cliente desea realizar
-            mensaje = get_msg(c)
-            [origen, destino, cantidad, hash] = mensaje.split("&")
-
-            #Chequear integridad del mensaje
-            mensaje_nuevo = str(origen) + "&" + str(destino) + "&" + str(cantidad) + "&" + str(nonce)
-            clave = "c1314ed6"
-            hash_nuevo = hmac.new(clave, mensaje_nuevo, hashlib.sha1).hexdigest()
-
-            #Enviar respuesta al cliente
-            if hash == hash_nuevo:
-                send_msg(c, "Se han transferido " + str(cantidad) + " euros desde la cuenta " + str(
-                    origen) + " a la cuenta " + str(destino))
-            else:
-                send_msg(c, "Error, inténtelo de nuevo más tarde.")
+            with open('results.txt', 'r') as f:
+                results = json.load(f)
+                f.close()
         except:
             pass
-        c.close()
+    except:
+        print ("Archivo de configuración no encontrado")
+    else:
+
+        # Creación del socket del servidor
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind(('localhost', port))
+
+        while True:
+            # Permanecer en escucha de nuevas conexiones
+            s.listen(1)
+
+            # Aceptar nueva conexión entrante
+            c, addr = s.accept()
+            try:
+                # Generar y enviar nonce para la nueva conexión entrante
+                nonce = ''.join([str(random.randint(0, 9)) for i in range(16)])
+                send_msg(c, nonce)
+
+                # Recibir transacción que el cliente desea realizar
+                mensaje = get_msg(c)
+                [origen, destino, cantidad, hash] = mensaje.split("&")
+
+                # Chequear integridad del mensaje
+                mensaje_nuevo = str(origen) + "&" + str(destino) + "&" + str(cantidad) + "&" + str(nonce)
+
+                hash_nuevo = hmac.new(str(clave), mensaje_nuevo, getattr(hashlib, algHashing)).hexdigest()
+
+                # Enviar respuesta al cliente
+                result = 0
+                if hash == hash_nuevo:
+                    send_msg(c, "Se han transferido " + str(cantidad) + " euros desde la cuenta " + str(
+                        origen) + " a la cuenta " + str(destino))
+                    result = 1
+                else:
+                    send_msg(c, "Error, inténtelo de nuevo más tarde.")
+
+                # Escribir los resultados en archivo de results
+                try:
+                    results[datetime.datetime.now().strftime("%Y%m")]
+                except:
+                    # El mes todavía no existía, se crea
+                    results[datetime.datetime.now().strftime("%Y%m")] = [result]
+                else:
+                    # El mes ya existía, se añade un nuevo par de datos
+                    results[datetime.datetime.now().strftime("%Y%m")].append(result)
+
+                # Almacenar resultado
+                try:
+                    #Volcar archivo de resultados
+                    with open('results.txt', 'w') as f:
+                        json.dump(results, f, indent=2)
+                        f.flush()
+                        f.close()
+                except:
+                    pass
+            except:
+                pass
+            c.close()
+
+
+def graph_print():
+    pass
 
 
 if __name__ == '__main__':
+
     server(8080)

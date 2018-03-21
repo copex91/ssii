@@ -5,6 +5,8 @@ import socket
 import struct
 import hashlib
 import hmac
+import json
+
 
 def _get_block(s, count):
     if count <= 0:
@@ -64,31 +66,38 @@ def send_msg(s, data):
 
 
 def client(port):
-    #Establecer conexión con el socket del servidor
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('localhost', port))
+    try:
+        with open('configClient.txt', 'r') as f:
+            config = json.load(f)
+            algHashing = config['algHashing']
+            clave = config['clave']
+    except:
+        print ("Archivo de configuración no encontrado")
+    else:
+        #Establecer conexión con el socket del servidor
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect(('localhost', port))
 
-    #Recibir del servidor el nonce que se usará en esta conexión
-    nonce = get_msg(s)
+        #Recibir del servidor el nonce que se usará en esta conexión
+        nonce = get_msg(s)
 
-    #Pedir al usuario por pantalla la transacción que desea realizar
-    origen = input("Introduza cuenta origen: ")
-    destino = input("Introduzca cuenta destino: ")
-    cantidad = input("Introduzca cantidad: ")
+        #Pedir al usuario por pantalla la transacción que desea realizar
+        origen = input("Introduza cuenta origen: ")
+        destino = input("Introduzca cuenta destino: ")
+        cantidad = input("Introduzca cantidad: ")
 
-    #Generar el mensaje que se enviará al servidor
-    mensaje = str(origen) + "&" + str(destino) + "&" + str(cantidad)
-    mensaje_nonce = mensaje + "&" + nonce
+        #Generar el mensaje que se enviará al servidor
+        mensaje = str(origen) + "&" + str(destino) + "&" + str(cantidad)
+        mensaje_nonce = mensaje + "&" + nonce
 
-    #Hasheo del mensaje para la verificación de integridad
-    clave = "c1314ed6"
-    hash = hmac.new(clave, mensaje_nonce, hashlib.sha1)
-    send_msg(s, mensaje + "&" + hash.hexdigest())
+        #Hasheo del mensaje para la verificación de integridad
+        hash = hmac.new(str(clave), mensaje_nonce, getattr(hashlib, algHashing))
+        send_msg(s, mensaje + "&" + hash.hexdigest())
 
-    #Imprimir respuesta del servidor
-    print get_msg(s)
-    s.shutdown(socket.SHUT_RDWR)
-    s.close()
+        #Imprimir respuesta del servidor
+        print get_msg(s)
+        s.shutdown(socket.SHUT_RDWR)
+        s.close()
 
 
 if __name__ == '__main__':
