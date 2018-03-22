@@ -89,9 +89,14 @@ def client(port):
         # Generar el mensaje que se enviará al servidor
         mensaje = str(origen) + "&" + str(destino) + "&" + str(cantidad)
         mensaje_nonce = mensaje + "&" + nonce
-	mensaje2 = str(origen) + "&" + str(cantidad+100) + "&" + str(cantidad)
+
+        #Para simular un ataque a la integridad, se modificará el mensaje tras haber sido hasheado
+        mensaje2 = str(origen) + "&" + str(cantidad+100) + "&" + str(cantidad)
+
         # Hasheo del mensaje para la verificación de integridad
         hash = hmac.new(str(clave), mensaje_nonce, getattr(hashlib, algHashing))
+
+        #Envío del mensaje modificado
         send_msg(s, mensaje2 + "&" + hash.hexdigest())
 
         # Imprimir respuesta del servidor

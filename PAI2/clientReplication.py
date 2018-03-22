@@ -95,13 +95,16 @@ def client(port):
 
         # Hasheo del mensaje para la verificación de integridad
         hash = hmac.new(str(clave), mensaje_nonce, getattr(hashlib, algHashing))
-        # send_msg(s, mensaje + "&" + hash.hexdigest())
+
+        # Envío del mensaje al servidor
+        send_msg(s, mensaje + "&" + hash.hexdigest())
 
         # Imprimir respuesta del servidor
-        # print get_msg(s)
+        print get_msg(s)
         s.shutdown(socket.SHUT_RDWR)
         s.close()
 
+    # Simulamos un ataque a la integridad de los datos mediante un ataque por réplica de mensajes
     try:
         with open('configClient.txt', 'r') as f:
             config = json.load(f)
@@ -117,22 +120,11 @@ def client(port):
         # Recibir del servidor el nonce que se usará en esta conexión
         nonce = get_msg(s)
 
-        # Pedir al usuario por pantalla la transacción que desea realizar
-        # origen = input("Introduza cuenta origen: ")
-        # destino = input("Introduzca cuenta destino: ")
-        # cantidad = input("Introduzca cantidad: ")
-
-        # Generar el mensaje que se enviará al servidor
-        # mensaje = str(origen) + "&" + str(destino) + "&" + str(cantidad)
-        # mensaje_nonce = mensaje + "&" + nonce
-
-        # Hasheo del mensaje para la verificación de integridad
-        # hash = hmac.new(str(clave), mensaje_nonce, getattr(hashlib, algHashing))
-
+        # Volvemos a enviar el mismo mensaje anterior
         send_msg(s, mensaje + "&" + hash.hexdigest())
 
         # Imprimir respuesta del servidor
-        print get_msg(s)
+        print 'Respuesta del servidor a la réplica: %s' % get_msg(s)
         s.shutdown(socket.SHUT_RDWR)
         s.close()
 

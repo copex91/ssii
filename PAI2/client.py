@@ -92,6 +92,8 @@ def client(port):
 
         # Hasheo del mensaje para la verificación de integridad
         hash = hmac.new(str(clave), mensaje_nonce, getattr(hashlib, algHashing))
+
+        # Envío del mensaje
         send_msg(s, mensaje + "&" + hash.hexdigest())
 
         # Imprimir respuesta del servidor
