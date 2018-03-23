@@ -1,0 +1,2 @@
+{ "algHashing": "sha384",
+"clave": "c1314ed63d2f32s3"}
