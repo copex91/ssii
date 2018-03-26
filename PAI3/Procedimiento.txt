@@ -1,0 +1,5 @@
+1. Realizar conexión cliente-servidor para envío de mensajes.
+2. Realizar cifrado usando MAC al mensaje (mediante input) que vaya a enviar el cliente y enviarlo al servidor.
+3. Una vez haya recibido esa MAC el servidor, el servidor cifra el mensaje recibido usando la clave compartida entre cliente-servidor y el resultado lo compara con la MAC recibida.
+4. En caso de éxito la integridad está comprobada. En caso de fallo hay error en la integridad y deberá guardarse el reporte de ese fallo en un fichero 'log'. 
+5. También deberá comprobarse el KPI siguiendo el mismo modelo que en el PAI1, es decir, comprobar los intentos realizados y comparar los exitosos y los fallidos. 
