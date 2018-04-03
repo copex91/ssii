@@ -6,7 +6,7 @@ import json
 import ssl
 
 
-CERTFILE = 'cert.pem'
+CERTFILE = 'cert_sinpass.pem'
 
 
 def client(port):

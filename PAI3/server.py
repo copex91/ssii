@@ -7,8 +7,8 @@ import json
 import ssl
 
 
-KEYFILE = 'key.pem'
-CERTFILE = 'cert.pem'
+KEYFILE = 'key_sinpass.pem'
+CERTFILE = 'cert_sinpass.pem'
 
 
 def server(port):
@@ -47,8 +47,8 @@ def server(port):
             print('Got connection: ', c, addr)
             # try:
             # Generar y enviar nonce para la nueva conexión entrante
-            nonce = ''.join([str(random.randint(0, 9)) for i in range(16)])
-            s_ssl.send(nonce)
+            # nonce = ''.join([str(random.randint(0, 9)) for i in range(16)])
+            c.send(b'This is a response.')
 
             # # Recibir transacción que el cliente desea realizar
             # mensaje = get_msg(c)
