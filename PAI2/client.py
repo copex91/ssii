@@ -97,7 +97,7 @@ def client(port):
         send_msg(s, mensaje + "&" + hash.hexdigest())
 
         # Imprimir respuesta del servidor
-        print get_msg(s)
+        print(get_msg(s))
         s.shutdown(socket.SHUT_RDWR)
         s.close()
 
