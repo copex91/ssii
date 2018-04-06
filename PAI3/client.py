@@ -4,6 +4,9 @@
 import socket
 import json
 import ssl
+import getpass
+import hmac
+import hashlib
 
 
 CERTFILE = 'cert_sinpass.pem'
@@ -24,26 +27,22 @@ def client(port):
 
         ssl_socket.connect(('127.0.0.1', port))
 
-        # # Recibir del servidor el nonce que se usará en esta conexión
-        # nonce = get_msg(s)
-        #
-        # # Pedir al usuario por pantalla la transacción que desea realizar
-        # origen = input("Introduza cuenta origen: ")
-        # destino = input("Introduzca cuenta destino: ")
-        # cantidad = input("Introduzca cantidad: ")
-        #
-        # # Generar el mensaje que se enviará al servidor
-        # mensaje = str(origen) + "&" + str(destino) + "&" + str(cantidad)
-        # mensaje_nonce = mensaje + "&" + nonce
-        #
-        # # Hasheo del mensaje para la verificación de integridad
-        # hash = hmac.new(str(clave), mensaje_nonce, getattr(hashlib, algHashing))
-        #
-        # # Envío del mensaje
-        # send_msg(s, mensaje + "&" + hash.hexdigest())
+        # Pedir al usuario por pantalla la transacción que desea realizar
+        usuario = raw_input("Introduzca usuario: ")
+        password = raw_input("Introduzca contraseña: ")
+        secret = raw_input("Introduzca mensaje secreto: ")
+
+        # Generar el mensaje que se enviará al servidor
+        mensaje = str(usuario) + "&" + str(password) + "&" + str(secret)
+
+        # Hasheo del mensaje para la verificación de integridad
+        hash = hmac.new(str(clave), mensaje, getattr(hashlib, algHashing))
+
+        # Envío del mensaje
+        ssl_socket.send(mensaje + "&" + hash.hexdigest())
 
         # Imprimir respuesta del servidor
-        print(ssl_socket.recv(1000))
+        print('Respuesta: ' + ssl_socket.recv(1000))
         ssl_socket.close()
 
 

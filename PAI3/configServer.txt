@@ -1,3 +1,9 @@
 { "algHashing": "sha384",
 "clave": "c1314ed63d2f32s3",
-"threshold": "80"}
+"threshold": "80",
+"usuarios": {
+    "admin": "admin",
+    "paco": "1234",
+    "jack": "qwerty"
+}
+}

@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import socket
+import hmac
+import hashlib
 import json
 import ssl
 
@@ -17,6 +19,7 @@ def server(port):
             config = json.load(f)
             algHashing = config['algHashing']
             clave = config['clave']
+            usuarios = config['usuarios']
 
         # Leer fichero de resultados
         results = {}
@@ -43,30 +46,35 @@ def server(port):
             # c, addr = s.accept()
 
             c, addr = s_ssl.accept()
-            print('Got connection: ', c, addr)
+            # print('Got connection: ', c, addr)
             # try:
-            # Generar y enviar nonce para la nueva conexión entrante
-            # nonce = ''.join([str(random.randint(0, 9)) for i in range(16)])
-            c.send(b'This is a response.')
 
-            # # Recibir transacción que el cliente desea realizar
-            # mensaje = get_msg(c)
-            # [origen, destino, cantidad, hash] = mensaje.split("&")
-            #
-            # # Chequear integridad del mensaje
-            # mensaje_nuevo = str(origen) + "&" + str(destino) + "&" + str(cantidad) + "&" + str(nonce)
-            #
-            # hash_nuevo = hmac.new(str(clave), mensaje_nuevo, getattr(hashlib, algHashing)).hexdigest()
-            #
-            # # Enviar respuesta al cliente
-            # result = 0
-            # if hash == hash_nuevo:
-            #     send_msg(c, "Se han transferido " + str(cantidad) + " euros desde la cuenta " + str(
-            #         origen) + " a la cuenta " + str(destino))
-            #     result = 1
-            # else:
-            #     send_msg(c, "Error, inténtelo de nuevo más tarde.")
-            #
+            # Recibir transacción que el cliente desea realizar
+            mensaje = c.recv(10000)
+            [usuario, password, secret, hash] = mensaje.split("&")
+
+            print('Usuario: ' + usuario)
+            print('Password: ' + password)
+            print('Secret: ' + secret)
+            print('Hash: ' + hash)
+
+            # Chequear integridad del mensaje
+            mensaje_nuevo = str(usuario) + "&" + str(password) + "&" + str(secret)
+
+            hash_nuevo = hmac.new(str(clave), mensaje_nuevo, getattr(hashlib, algHashing)).hexdigest()
+
+            # Enviar respuesta al cliente
+            if hash == hash_nuevo:
+                try:
+                    if usuarios[usuario] == password:
+                        c.send("El mensaje secreto ha sido almacenado correctamente")
+                    else:
+                        c.send("Usuario incorrecto")
+                except:
+                    c.send("Usuario incorrecto")
+            else:
+                c.send("Error, inténtelo de nuevo más tarde.")
+
         s_ssl.close()
 
 
