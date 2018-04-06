@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import socket
-import random
 import json
 import ssl
 
@@ -68,7 +67,7 @@ def server(port):
             # else:
             #     send_msg(c, "Error, inténtelo de nuevo más tarde.")
             #
-            s_ssl.close()
+        s_ssl.close()
 
 
 if __name__ == '__main__':
