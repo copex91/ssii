@@ -1,0 +1,14 @@
+PUNTO 2 
+1. ¿Mediante sniffing puede un atacante conocer usuario, contraseña y/o mensaje secreto?
+No. Analizando el archivo .pcap vemos que todos los paquetes enviados están cifrados y por lo tanto no se puede obtener ningún tipo de información.
+
+2. ¿Qué ocurre con la keyStore? ¿Se usa el mismo keyStore? ¿Qué ocurriría si usamos máquinas distintas, donde estaría la keyStore?
+// TODO
+
+PUNTO 3
+1. 0x16: TLS 'handshake' header indicator
+   0x03 0x03: versión TLS: TLS 1.2
+   
+   CipherSuite usado: TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+
+2. Comando openssl -cipher 'cipher suite' -> probar ver si permite seleccionar cipher suite y comprobar de nuevo con wireshark
