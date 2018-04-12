@@ -8,34 +8,26 @@ import json
 import ssl
 
 
-KEYFILE = 'key_sinpass.pem'
-CERTFILE = 'cert_sinpass.pem'
-
+KEYFILE = 'keystore/key_sinpass.pem'
+CERTFILE = 'keystore/cert_sinpass.pem'
 
 def server(port):
     try:
         # Leer fichero de configuración
         with open('configServer.txt', 'r') as f:
             config = json.load(f)
-            algHashing = config['algHashing']
+            alg_hashing = config['algHashing']
+            IP = config['IP']
             clave = config['clave']
             usuarios = config['usuarios']
 
-        # Leer fichero de resultados
-        results = {}
-        try:
-            with open('results.txt', 'r') as f:
-                results = json.load(f)
-                f.close()
-        except:
-            pass
     except:
         print ("Archivo de configuración no encontrado")
     else:
 
         # Creación del socket del servidor
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(('127.0.0.1', port))
+        s.bind((IP, port))
         # Permanecer en escucha de nuevas conexiones
         s.listen(1)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -61,7 +53,7 @@ def server(port):
             # Chequear integridad del mensaje
             mensaje_nuevo = str(usuario) + "&" + str(password) + "&" + str(secret)
 
-            hash_nuevo = hmac.new(str(clave), mensaje_nuevo, getattr(hashlib, algHashing)).hexdigest()
+            hash_nuevo = hmac.new(str(clave), mensaje_nuevo, getattr(hashlib, alg_hashing)).hexdigest()
 
             # Enviar respuesta al cliente
             if hash == hash_nuevo:
