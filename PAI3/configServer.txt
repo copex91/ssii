@@ -1,6 +1,6 @@
 { "algHashing": "sha384",
 "clave": "c1314ed63d2f32s3",
-"threshold": "80",
+"IP":"127.0.0.1",
 "usuarios": {
     "admin": "admin",
     "paco": "1234",
