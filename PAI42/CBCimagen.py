@@ -4,15 +4,18 @@
 from PIL import Image
 from Crypto.Cipher import AES
 
-option = input("Introduzca opción: ")
+option = input("Introduzca opción: \n 1.- Estrella \n 2.- Pingu \n")
 if option == "1":
-    filename = "1493736986289.jpg"
-    filename_out = "1493736986289_encrypted"
+    filename = "estrella.jpg"
+    filename_out_ecb = "estrella_ecb"
+    filename_out_cbc = "estrella_cbc"
     format = "JPEG"
 elif option == "2":
     filename = "pingu.png"
-    filename_out = "pingu_encrypted"
+    filename_out_ecb = "pingu_ecb"
+    filename_out_cbc = "pingu_cbc"
     format = "PNG"
+
 key = "aaaabbbbccccdddd"
 
 
@@ -37,14 +40,19 @@ def process_image(filename):
     original = len(data)
 
     # Encrypts using desired AES mode (we'll set it to ECB by default)
-    new = convert_to_RGB(aes_ecb_encrypt(key, pad(data))[:original])
+    new_ecb = convert_to_RGB(aes_ecb_encrypt(key, pad(data))[:original])
+    new_cbc = convert_to_RGB(aes_cbc_encrypt(key, pad(data))[:original])
 
     # Create a new PIL Image object and save the old image data into the new image.
-    im2 = Image.new(im.mode, im.size)
-    im2.putdata(new)
+    im_ecb = Image.new(im.mode, im.size)
+    im_ecb.putdata(new_ecb)
+
+    im_cbc = Image.new(im.mode, im.size)
+    im_cbc.putdata(new_cbc)
 
     # Save image
-    im2.save(filename_out + "." + format, format)
+    im_ecb.save(filename_out_ecb + "." + format, format)
+    im_cbc.save(filename_out_cbc + "." + format, format)
 
 
 # CBC
