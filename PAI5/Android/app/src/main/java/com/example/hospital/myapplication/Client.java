@@ -1,6 +1,7 @@
 package com.example.hospital.myapplication;
 
 import android.os.AsyncTask;
+import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -14,14 +15,15 @@ public class Client extends AsyncTask<Void, Void, Void> {
     String dstAddress;
     int dstPort;
     String message = "";
-    String response;
     String firmaMensaje;
+    TextView resultado;
 
-    Client(String addr, int port, String message, String firmaMensaje) {
+    Client(String addr, int port, String message, String firmaMensaje, TextView resultado) {
         dstAddress = addr;
         dstPort = port;
         this.message = message;
         this.firmaMensaje = firmaMensaje;
+        this.resultado = resultado;
     }
 
     @Override
@@ -37,14 +39,8 @@ public class Client extends AsyncTask<Void, Void, Void> {
             os = new DataOutputStream(socket.getOutputStream());
             is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            response = "UnknownHostException: " + e.toString();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            response = "IOException: " + e.toString();
+        } catch (Exception e) {
+            resultado.setText("Petición incorrecta");
         } finally {
             if (socket != null) {
                 try {
@@ -56,9 +52,12 @@ public class Client extends AsyncTask<Void, Void, Void> {
                     is.close();
                     socket.close();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    resultado.setText("Petición incorrecta");
+                }finally {
+                    resultado.setText("Petición OK");
                 }
+            }else{
+                resultado.setText("Petición incorrecta");
             }
         }
         return null;

@@ -10,6 +10,32 @@
     tools:context="com.example.hospital.myapplication.MainActivity">
 
     <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/et_sab"
+        android:layout_alignStart="@+id/textView"
+        android:text="Sábanas:" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="117dp"
+        android:text="Toallas:" />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="172dp"
+        android:text="Jabón:" />
+
+    <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,6 +66,28 @@
         android:maxLines="1"
         android:textSize="12sp" />
 
+    <EditText
+        android:id="@+id/et_toa"
+        android:layout_width="79dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textView4"
+        android:layout_alignEnd="@+id/textView"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLines="1"
+        android:textSize="12sp" />
+
+    <EditText
+        android:id="@+id/et_jab"
+        android:layout_width="79dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textView6"
+        android:layout_alignEnd="@+id/textView"
+        android:ems="10"
+        android:inputType="number"
+        android:maxLines="1"
+        android:textSize="12sp" />
+
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
@@ -58,5 +106,12 @@
         android:hint="Usuario"
         android:inputType="textPersonName"
         android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_res"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true" />
+
 
 </RelativeLayout>
