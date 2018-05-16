@@ -14,6 +14,7 @@ public class Client extends AsyncTask<Void, Void, Void> {
 
     String dstAddress;
     int dstPort;
+    String respuesta;
     String message = "";
     String firmaMensaje;
     TextView resultado;
@@ -21,6 +22,7 @@ public class Client extends AsyncTask<Void, Void, Void> {
     Client(String addr, int port, String message, String firmaMensaje, TextView resultado) {
         dstAddress = addr;
         dstPort = port;
+
         this.message = message;
         this.firmaMensaje = firmaMensaje;
         this.resultado = resultado;
@@ -34,8 +36,10 @@ public class Client extends AsyncTask<Void, Void, Void> {
         BufferedReader is = null;
 
         try {
+            //Crear socket
             socket = new Socket(dstAddress, dstPort);
 
+            //Crear canales de entrada y salida de datos
             os = new DataOutputStream(socket.getOutputStream());
             is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -43,18 +47,21 @@ public class Client extends AsyncTask<Void, Void, Void> {
             resultado.setText("Petición incorrecta");
         } finally {
             if (socket != null) {
+                String response = "";
                 try {
+                    //El mensaje se manda en dos pasos: primero el mensaje y luego la firma
                     os.writeBytes( message + "\n");
                     os.writeBytes(firmaMensaje + "\n");
 
-//            String responseLine = is.readLine();
+                    //Obtener la respuesta del servidor
+                    respuesta = is.readLine();
+
+                    //Cerrar canales
                     os.close();
                     is.close();
                     socket.close();
                 } catch (IOException e) {
                     resultado.setText("Petición incorrecta");
-                }finally {
-                    resultado.setText("Petición OK");
                 }
             }else{
                 resultado.setText("Petición incorrecta");
@@ -65,7 +72,8 @@ public class Client extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void result) {
-//        Toast.makeText(, response, Toast.LENGTH_SHORT).show();
+        //Imprimir respuesta del servidor por pantalla
+        resultado.setText(respuesta);
         super.onPostExecute(result);
     }
 }

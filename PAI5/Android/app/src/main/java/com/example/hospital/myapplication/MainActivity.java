@@ -28,10 +28,20 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    // Setup Server information
+    // Dirección del servidor
     protected static String server = "10.0.2.2";
     protected static int port = 8000;
-    private PKCS8EncodedKeySpec keySpec;
+
+    final EditText usuario = (EditText) findViewById(R.id.et_usuario);
+    final EditText sabanas = (EditText) findViewById(R.id.et_sab);
+    final EditText toallas = (EditText) findViewById(R.id.et_toa);
+    final EditText jabones = (EditText) findViewById(R.id.et_jab);
+    final TextView resultado = (TextView) findViewById(R.id.tv_res);
+
+    final String usuario_str = usuario.getText().toString();
+    final String sabanas_str = sabanas.getText().toString();
+    final String toallas_str = toallas.getText().toString();
+    final String jabones_str = jabones.getText().toString();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,102 +55,98 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //Comprobación de nombre de usuario relleno
+                if (usuario.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "Indique su nombre de usuario", Toast.LENGTH_SHORT).show();
+
+                    // Se debe de rellenar al menos un artículo
+                }else if (sabanas_str.equals("") && toallas_str.equals("") && jabones_str.equals("")) {
+                    // Mostramos un mensaje emergente;
+                    Toast.makeText(getApplicationContext(), "Rellene al menos un elemento", Toast.LENGTH_SHORT).show();
+
+                    // Para los artículos rellenos, sólo se puede pedir una cantidad de 1 a 300
+                }else if (!sabanas_str.equals("") && (getInt(sabanas_str)>300 || getInt(sabanas_str)<1) ||
+                        !toallas_str.equals("") && (getInt(toallas_str)>300 || getInt(toallas_str)<1) ||
+                        !jabones_str.equals("") && (getInt(jabones_str)>300 || getInt(jabones_str)<1)) {
+                    // Mostramos un mensaje emergente;
+                    Toast.makeText(getApplicationContext(), "La cantidad debe estar entre 1 y 300", Toast.LENGTH_SHORT).show();
+                } else {
                     showDialog();
+                }
             }
         });
     }
 
     // Creación de un cuadro de dialogo para confirmar pedido
     private void showDialog() throws Resources.NotFoundException {
-            final EditText usuario = (EditText) findViewById(R.id.et_usuario);
-            final EditText sabanas = (EditText) findViewById(R.id.et_sab);
-            final EditText toallas = (EditText) findViewById(R.id.et_toa);
-            final EditText jabones = (EditText) findViewById(R.id.et_jab);
-            final TextView resultado = (TextView) findViewById(R.id.tv_res);
-
-            final String usuario_str = usuario.getText().toString();
-            final String sabanas_str = sabanas.getText().toString();
-            final String toallas_str = toallas.getText().toString();
-            final String jabones_str = jabones.getText().toString();
-
-            if (usuario.getText().toString().equals("")) {
-                Toast.makeText(getApplicationContext(), "Indique su nombre de usuario", Toast.LENGTH_SHORT).show();
-            }else if (sabanas_str.equals("") && toallas_str.equals("") && jabones_str.equals("")) {
-                // Mostramos un mensaje emergente;
-                Toast.makeText(getApplicationContext(), "Rellene al menos un elemento", Toast.LENGTH_SHORT).show();
-            }else if (!sabanas_str.equals("") && (getInt(sabanas_str)>300 || getInt(sabanas_str)<1) ||
-                      !toallas_str.equals("") && (getInt(toallas_str)>300 || getInt(toallas_str)<1) ||
-                      !jabones_str.equals("") && (getInt(jabones_str)>300 || getInt(jabones_str)<1)) {
-            // Mostramos un mensaje emergente;
-                Toast.makeText(getApplicationContext(), "La cantidad debe estar entre 1 y 300", Toast.LENGTH_SHORT).show();
-            } else {
             new AlertDialog.Builder(this)
                     .setTitle("Enviar")
                     .setMessage("Se va a proceder al envio")
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
-                                // Catch ok button and send information
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    resultado.setText("");
-                                    String pvk = "";
-                                    // Extraer los datos de la vista
-                                    String mensaje;
-                                    if(sabanas_str.equals("")) {
-                                        mensaje = "sabanas:0;";
-                                    }else {
-                                        mensaje = "sabanas:" + sabanas_str + ";";
-                                    }
-                                    if(toallas_str.equals("")) {
-                                        mensaje = "toallas:0;";
-                                    }else {
-                                        mensaje = "toallas:" + toallas_str + ";";
-                                    }
-                                    if(jabones_str.equals("")) {
-                                        mensaje = "jabon:0";
-                                    }else {
-                                        mensaje = "jabon:" + jabones_str;
-                                    }
-                                    mensaje = mensaje + "&" + usuario_str;
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                resultado.setText("");
+                                String pvk = "";
+                                // Extraer los datos de la vista y formar el mensaje a enviar
+                                String mensaje = "";
 
-                                    // Obtener clave privada de la DB
+                                // Cantidad de sábanas
+                                if(sabanas_str.equals("")) {
+                                    mensaje = mensaje + "sabanas:0;";
+                                }else {
+                                    mensaje = mensaje + "sabanas:" + sabanas_str + ";";
+                                }
+
+                                // Cantidad de toallas
+                                if(toallas_str.equals("")) {
+                                    mensaje = mensaje + "toallas:0;";
+                                }else {
+                                    mensaje = mensaje + "toallas:" + toallas_str + ";";
+                                }
+
+                                // Cantidad de jabones
+                                if(jabones_str.equals("")) {
+                                    mensaje = mensaje + "jabon:0";
+                                }else {
+                                    mensaje = mensaje + "jabon:" + jabones_str;
+                                }
+
+                                // Usuario que realiza la petición
+                                mensaje = mensaje + "&" + usuario_str;
+
+                                // Obtener clave privada de la DB
+                                try {
+                                    InputStream is = getResources().openRawResource(R.raw.db);
+                                    String db = readTextFile(is);
+                                    JSONObject reader = new JSONObject(db);
+                                    pvk = reader.getJSONObject("usuarios").getJSONObject(usuario_str).getString("priv");
+                                }catch (Exception e){
+                                    resultado.setText("Petición incorrecta");
+                                }
+                                if (!pvk.equals("")){
+                                    // Firmar y lanzar el pedido al servidor
                                     try {
-                                        InputStream is = getResources().openRawResource(R.raw.db);
-                                        String db = readTextFile(is);
-                                        JSONObject reader = new JSONObject(db);
-                                        pvk = reader.getJSONObject("usuarios").getJSONObject(usuario_str).getString("priv");
-                                    }catch (Exception e){
+                                        //Firmar
+                                        Signature sg = Signature.getInstance("SHA256WITHRSA");
+                                        PrivateKey prv_recovered = loadPrivateKey(pvk);
+                                        sg.initSign(prv_recovered);
+                                        sg.update(mensaje.getBytes());
+                                        byte[] firma = sg.sign();
+                                        String firmaMensaje = base64Encode(firma);
+
+                                        //Lanzar pedido al servidor de forma asíncrona
+                                        Client myClient = new Client(server, port, mensaje, firmaMensaje, resultado);
+                                        myClient.execute();
+                                    } catch (Exception e) {
                                         resultado.setText("Petición incorrecta");
                                     }
-                                    if (!pvk.equals("")){
-                                        // Firmar y lanzar el pedido al servidor
-                                        Signature sg = null;
-                                        KeyFactory kf = null;
-                                        try {
-                                            sg = Signature.getInstance("SHA256WITHRSA");
-                                            PrivateKey prv_recovered = loadPrivateKey(pvk);
-                                            sg.initSign(prv_recovered);
-                                            sg.update(mensaje.getBytes());
-                                            byte[] firma = sg.sign();
-                                            Log.e("Firma", firma.toString());
-                                            String firmaMensaje = base64Encode(firma);
-                                            Log.e("Firma", firmaMensaje);
-    //                                        mensaje = mensaje + "&" + firmaMensaje;
-                                            Client myClient = new Client(server, port, mensaje, firmaMensaje, resultado);
-                                            myClient.execute();
-                                        } catch (Exception e) {
-                                            resultado.setText("Petición incorrecta");
-                                        }
 //                                        finally {
 //                                            Toast.makeText(MainActivity.this, "Petición enviada correctamente", Toast.LENGTH_SHORT).show();
 //                                        }
-                                    }
                                 }
                             }
-
-                    )
-                    .setNegativeButton(android.R.string.no, null).show();
-            }
+                    }).setNegativeButton(android.R.string.no, null).show();
         }
 
     public static PrivateKey loadPrivateKey(String key64) throws GeneralSecurityException {
