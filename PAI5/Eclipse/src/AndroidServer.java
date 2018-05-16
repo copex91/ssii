@@ -42,7 +42,7 @@ public class AndroidServer {
 				Reader reader = new FileReader(new File(".\\src\\db.txt"));
 	            Gson gson = new Gson();
 	            DB database = gson.fromJson(reader, DB.class);
-		        
+	            
 				// Abre un BufferedReader para leer los datos del cliente
 				BufferedReader is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				// Abre un PrintWriter para enviar datos al cliente

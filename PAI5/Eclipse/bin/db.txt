@@ -1,8 +1,5 @@
-{"productos": {
- "1":"Sábanas"
- },
-"usuarios": {
-  "paco": "[B@12a3a380"
+{"usuarios": {
+  "paco": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5SLfGfUzCxuK4OyaCoaLgTe5XdW+ns16gwEYB/4oUXb+DvuP/D+mrKno3MiJKcDLcwdj0oLvYfPyJEvTzYftwA//Kfs3ED+AIe/+Hy6+RqfeLp7hWvEiepZili4RTg4D5E/b0YoLVtGGE9Hh/v2ieir5aOKVbYGKN4xLtPyFB2TdPNCs7pN1Sh1O48V8CrWKxNg/9zGeGdwt4eXvR4hXLB2BJJK+chPWhcSKlp6QPMcvo4CMvgH+UKuzrFcMjB0LwJ3h9xEtiaKkm3NL7Si1Pp29iIsV6UPo1Ncy5+oCP2wQ9VMFsbSfufj5lMLLj8H4M+LYnurECuSoBFgbCS18KwIDAQAB"
  },
  "pedidos": []
 }
