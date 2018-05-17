@@ -1,0 +1,21 @@
+{
+  "total": 1,
+  "correctas": 1,
+  "meses": [
+    {
+      "mes": "0318",
+      "porcentaje": 30.0,
+      "tendencia": "0"
+    },
+    {
+      "mes": "0418",
+      "porcentaje": 18.0,
+      "tendencia": "0"
+    },
+    {
+      "mes": "0518",
+      "porcentaje": 100.0,
+      "tendencia": "+"
+    }
+  ]
+}

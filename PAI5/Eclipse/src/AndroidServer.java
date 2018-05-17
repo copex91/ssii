@@ -28,17 +28,17 @@ import com.google.gson.GsonBuilder;
 
 public class AndroidServer {
 	private ServerSocket serverSocket;
-
+	
 	// Constructor del Servidor
 	public AndroidServer() throws Exception {
 		// ServerSocketFactory para construir los ServerSockets
 		ServerSocketFactory socketFactory = (ServerSocketFactory) ServerSocketFactory.getDefault();
-		// Creación de un objeto ServerSocket escuchando peticiones en el puerto
+		// Creaciï¿½n de un objeto ServerSocket escuchando peticiones en el puerto
 		// 8000
 		serverSocket = (ServerSocket) socketFactory.createServerSocket(8000);
 	}
 
-	// Ejecución del servidor para escuchar peticiones de los clientes
+	// Ejecuciï¿½n del servidor para escuchar peticiones de los clientes
 	void runServer() {
 		while (true) {
 			BufferedReader is;
@@ -47,8 +47,8 @@ public class AndroidServer {
 			try {
 				System.out.println("Esperando conexiones de clientes...");
 				socket = (Socket) serverSocket.accept();
-				System.out.println("Conexión entrante...");
-				Reader reader = new FileReader(new File(".\\src\\db.txt"));
+				System.out.println("Conexiï¿½n entrante...");
+				Reader reader = new FileReader(new File("src/db.txt"));
 				Gson gson = new Gson();
 				DB database = gson.fromJson(reader, DB.class);
 				
@@ -57,7 +57,7 @@ public class AndroidServer {
 				// Abre un PrintWriter para enviar datos al cliente
 				os = new DataOutputStream(socket.getOutputStream());
 				// Se lee del cliente el mensaje y el macdelMensajeEnviado
-				// Mensaje: IDobjeto:Número;IDobjeto:Número...&Usuario&Firma
+				// Mensaje: IDobjeto:Nï¿½mero;IDobjeto:Nï¿½mero...&Usuario&Firma
 				String mensaje = is.readLine();
 				String linea;
 				String firmaMensaje = "";
@@ -78,12 +78,17 @@ public class AndroidServer {
 				
 				Map<String, String> usuarios = database.usuarios;
 				String pubKey = "";
+				Reader reader2 = new FileReader(new File("src/indicador.txt"));
+				Gson gson2 = new Gson();
+				Indicador indicador = gson2.fromJson(reader2, Indicador.class);
 				
 				//Comprueba si el usuario existe en la DB
 				if (usuarios.containsKey(usuario)) {
+					
+					indicador.setCorrectas(indicador.correctas+1);
 					pubKey = usuarios.get(usuario);
 
-					// Verificación de la firma
+					// Verificaciï¿½n de la firma
 					Signature sg = Signature.getInstance("SHA256WITHRSA");
 
 					// String pubKey =
@@ -96,9 +101,9 @@ public class AndroidServer {
 						//Array con todos los pedidos
 						String[] productos = message.split(";");
 						Map<String, Integer> pedido =  new HashMap<String, Integer>();
-						//Por cada pedido, se añade uno a la base de datos
+						//Por cada pedido, se aï¿½ade uno a la base de datos
 						for (int i=0; productos.length > i; i++){
-							//Se obtiene el producto y cantidad de éste en parts
+							//Se obtiene el producto y cantidad de ï¿½ste en parts
 							parts = productos[i].split(":");
 							pedido.put(parts[0], Integer.parseInt(parts[1]));
 						}
@@ -106,28 +111,36 @@ public class AndroidServer {
 						Pedido p = new Pedido(usuario, pedido);
 						database.pedidos.add(p);
 //						database.setPedido(p);
-						Writer writer = new FileWriter(".\\src\\db.txt");
+						Writer writer = new FileWriter("src/db.txt");
 						Gson w_gson = new GsonBuilder().setPrettyPrinting().create();
 					    w_gson.toJson(database, writer);
 					    writer.flush();
 				        writer.close();
 						
-						System.out.println("Pedido añadido");
-						os.writeChars("Petición OK");
+						System.out.println("Pedido aï¿½adido");
+						os.writeChars("Peticiï¿½n OK");
 					} else {
 						System.out.println("Error de firma");
-						os.writeChars("Petición incorrecta");
+						os.writeChars("Peticiï¿½n incorrecta");
 					}
 				} else {
 					System.out.println("Usuario no encontrado");
-					os.writeChars("Petición incorrecta");
+					os.writeChars("Peticiï¿½n incorrecta");
 				}
+				indicador.setTotal(indicador.total+1);
+				Writer writer2 = new FileWriter("src/indicador.txt");
+				Gson w_gson2 = new GsonBuilder().setPrettyPrinting().create();
+				w_gson2.toJson(indicador, writer2);
+				writer2.flush();
+				writer2.close();
+				
 				is.close();
 				os.close();
 				socket.close();
 			} catch (Exception e) {
-				
+				e.printStackTrace();
 			}
+			
 		}
 	}
 

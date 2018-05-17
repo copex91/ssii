@@ -26,6 +26,46 @@
         "jabon": 0,
         "toallas": 0
       }
+    },
+    {
+      "usuario": "paco",
+      "productos": {
+        "sabanas": 66,
+        "jabon": 66,
+        "toallas": 66
+      }
+    },
+    {
+      "usuario": "paco",
+      "productos": {
+        "sabanas": 66,
+        "jabon": 66,
+        "toallas": 66
+      }
+    },
+    {
+      "usuario": "paco",
+      "productos": {
+        "sabanas": 66,
+        "jabon": 66,
+        "toallas": 66
+      }
+    },
+    {
+      "usuario": "paco",
+      "productos": {
+        "sabanas": 66,
+        "jabon": 66,
+        "toallas": 66
+      }
+    },
+    {
+      "usuario": "paco",
+      "productos": {
+        "sabanas": 66,
+        "jabon": 66,
+        "toallas": 66
+      }
     }
   ]
 }
