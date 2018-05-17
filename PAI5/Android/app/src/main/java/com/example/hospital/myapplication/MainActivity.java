@@ -32,22 +32,20 @@ public class MainActivity extends AppCompatActivity {
     protected static String server = "10.0.2.2";
     protected static int port = 8000;
 
-    final EditText usuario = (EditText) findViewById(R.id.et_usuario);
-    final EditText sabanas = (EditText) findViewById(R.id.et_sab);
-    final EditText toallas = (EditText) findViewById(R.id.et_toa);
-    final EditText jabones = (EditText) findViewById(R.id.et_jab);
-    final TextView resultado = (TextView) findViewById(R.id.tv_res);
-
-    final String usuario_str = usuario.getText().toString();
-    final String sabanas_str = sabanas.getText().toString();
-    final String toallas_str = toallas.getText().toString();
-    final String jabones_str = jabones.getText().toString();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        final EditText usuario = (EditText) findViewById(R.id.et_usuario);
+        final EditText sabanas = (EditText) findViewById(R.id.et_sab);
+        final EditText toallas = (EditText) findViewById(R.id.et_toa);
+        final EditText jabones = (EditText) findViewById(R.id.et_jab);
+        final TextView resultado = (TextView) findViewById(R.id.tv_res);
 
+        final String usuario_str = usuario.getText().toString();
+        final String sabanas_str = sabanas.getText().toString();
+        final String toallas_str = toallas.getText().toString();
+        final String jabones_str = jabones.getText().toString();
         // Capturamos el boton de Enviar
         View button = findViewById(R.id.button_send);
 
