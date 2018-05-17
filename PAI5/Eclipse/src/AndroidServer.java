@@ -2,9 +2,11 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
@@ -22,6 +24,7 @@ import java.util.Map;
 import javax.net.ServerSocketFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class AndroidServer {
 	private ServerSocket serverSocket;
@@ -48,7 +51,7 @@ public class AndroidServer {
 				Reader reader = new FileReader(new File(".\\src\\db.txt"));
 				Gson gson = new Gson();
 				DB database = gson.fromJson(reader, DB.class);
-
+				
 				// Abre un BufferedReader para leer los datos del cliente
 				is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				// Abre un PrintWriter para enviar datos al cliente
@@ -91,18 +94,23 @@ public class AndroidServer {
 					if (sg.verify(base64Decode(firmaMensaje))) {
 						
 						//Array con todos los pedidos
-						String[] pedidos = message.split(";");
+						String[] productos = message.split(";");
+						Map<String, Integer> pedido =  new HashMap<String, Integer>();
 						//Por cada pedido, se añade uno a la base de datos
-						for (int i=0; pedidos.length > i; i++){
-							
+						for (int i=0; productos.length > i; i++){
 							//Se obtiene el producto y cantidad de éste en parts
-							parts = pedidos[i].split(":");
-							Map<String, Integer> pedido =  new HashMap<String, Integer>();
+							parts = productos[i].split(":");
 							pedido.put(parts[0], Integer.parseInt(parts[1]));
-							
-//							Pedido p = new Pedido (usuario,pedido);
-//							database.setPedido(p);
 						}
+						
+						Pedido p = new Pedido(usuario, pedido);
+						database.pedidos.add(p);
+//						database.setPedido(p);
+						Writer writer = new FileWriter(".\\src\\db.txt");
+						Gson w_gson = new GsonBuilder().setPrettyPrinting().create();
+					    w_gson.toJson(database, writer);
+					    writer.flush();
+				        writer.close();
 						
 						System.out.println("Pedido añadido");
 						os.writeChars("Petición OK");
