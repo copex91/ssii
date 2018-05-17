@@ -5,10 +5,8 @@ import android.widget.TextView;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Client extends AsyncTask<Void, Void, Void> {
 
@@ -41,31 +39,23 @@ public class Client extends AsyncTask<Void, Void, Void> {
 
             //Crear canales de entrada y salida de datos
             os = new DataOutputStream(socket.getOutputStream());
+            //El mensaje se manda en dos pasos: primero el mensaje y luego la firma
+            os.writeBytes( message + "\n");
+            os.writeBytes(firmaMensaje + "\n");
+            //Inidicar al servidor que ya acabamos de enviar los datos
+            os.writeBytes("&END\n");
+
+            //Obtener la respuesta del servidor
             is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
+            respuesta = is.readLine();
+            is.close();
+            os.close();
+            //Cerrar socket
+            socket.close();
         } catch (Exception e) {
-            resultado.setText("Petición incorrecta");
+            respuesta = "Petición incorrecta";
         } finally {
-            if (socket != null) {
-                String response = "";
-                try {
-                    //El mensaje se manda en dos pasos: primero el mensaje y luego la firma
-                    os.writeBytes( message + "\n");
-                    os.writeBytes(firmaMensaje + "\n");
-                    os.close();
-                    //Obtener la respuesta del servidor
-                    respuesta = is.readLine();
 
-                    //Cerrar canales
-                    os.close();
-                    is.close();
-                    socket.close();
-                } catch (IOException e) {
-                    resultado.setText("Petición incorrecta");
-                }
-            }else{
-                resultado.setText("Petición incorrecta");
-            }
         }
         return null;
     }
