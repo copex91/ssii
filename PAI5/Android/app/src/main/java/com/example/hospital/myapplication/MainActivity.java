@@ -42,10 +42,6 @@ public class MainActivity extends AppCompatActivity {
         final EditText jabones = (EditText) findViewById(R.id.et_jab);
         final TextView resultado = (TextView) findViewById(R.id.tv_res);
 
-        final String usuario_str = usuario.getText().toString();
-        final String sabanas_str = sabanas.getText().toString();
-        final String toallas_str = toallas.getText().toString();
-        final String jabones_str = jabones.getText().toString();
         // Capturamos el boton de Enviar
         View button = findViewById(R.id.button_send);
 
@@ -53,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                final String usuario_str = usuario.getText().toString();
+                final String sabanas_str = sabanas.getText().toString();
+                final String toallas_str = toallas.getText().toString();
+                final String jabones_str = jabones.getText().toString();
                 //Comprobación de nombre de usuario relleno
                 if (usuario.getText().toString().equals("")) {
                     Toast.makeText(getApplicationContext(), "Indique su nombre de usuario", Toast.LENGTH_SHORT).show();
@@ -69,7 +69,74 @@ public class MainActivity extends AppCompatActivity {
                     // Mostramos un mensaje emergente;
                     Toast.makeText(getApplicationContext(), "La cantidad debe estar entre 1 y 300", Toast.LENGTH_SHORT).show();
                 } else {
-                    showDialog();
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Enviar")
+                            .setMessage("Se va a proceder al envio")
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int whichButton) {
+                                    resultado.setText("");
+                                    String pvk = "";
+                                    // Extraer los datos de la vista y formar el mensaje a enviar
+                                    String mensaje = "";
+
+                                    // Cantidad de sábanas
+                                    if(sabanas_str.equals("")) {
+                                        mensaje = mensaje + "sabanas:0;";
+                                    }else {
+                                        mensaje = mensaje + "sabanas:" + sabanas_str + ";";
+                                    }
+
+                                    // Cantidad de toallas
+                                    if(toallas_str.equals("")) {
+                                        mensaje = mensaje + "toallas:0;";
+                                    }else {
+                                        mensaje = mensaje + "toallas:" + toallas_str + ";";
+                                    }
+
+                                    // Cantidad de jabones
+                                    if(jabones_str.equals("")) {
+                                        mensaje = mensaje + "jabon:0";
+                                    }else {
+                                        mensaje = mensaje + "jabon:" + jabones_str;
+                                    }
+
+                                    // Usuario que realiza la petición
+                                    mensaje = mensaje + "&" + usuario_str;
+
+                                    // Obtener clave privada de la DB
+                                    try {
+                                        InputStream is = getResources().openRawResource(R.raw.db);
+                                        String db = readTextFile(is);
+                                        JSONObject reader = new JSONObject(db);
+                                        pvk = reader.getJSONObject("usuarios").getJSONObject(usuario_str).getString("priv");
+                                    }catch (Exception e){
+                                        resultado.setText("Petición incorrecta");
+                                    }
+                                    if (!pvk.equals("")){
+                                        // Firmar y lanzar el pedido al servidor
+                                        try {
+                                            //Firmar
+                                            Signature sg = Signature.getInstance("SHA256WITHRSA");
+                                            PrivateKey prv_recovered = loadPrivateKey(pvk);
+                                            sg.initSign(prv_recovered);
+                                            sg.update(mensaje.getBytes());
+                                            byte[] firma = sg.sign();
+                                            String firmaMensaje = base64Encode(firma);
+
+                                            //Lanzar pedido al servidor de forma asíncrona
+                                            Client myClient = new Client(server, port, mensaje, firmaMensaje, resultado);
+                                            myClient.execute();
+                                        } catch (Exception e) {
+                                            resultado.setText("Petición incorrecta");
+                                        }
+//                                        finally {
+//                                            Toast.makeText(MainActivity.this, "Petición enviada correctamente", Toast.LENGTH_SHORT).show();
+//                                        }
+                                    }
+                                }
+                            }).setNegativeButton(android.R.string.no, null).show();
                 }
             }
         });
@@ -77,74 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
     // Creación de un cuadro de dialogo para confirmar pedido
     private void showDialog() throws Resources.NotFoundException {
-            new AlertDialog.Builder(this)
-                    .setTitle("Enviar")
-                    .setMessage("Se va a proceder al envio")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
 
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                resultado.setText("");
-                                String pvk = "";
-                                // Extraer los datos de la vista y formar el mensaje a enviar
-                                String mensaje = "";
-
-                                // Cantidad de sábanas
-                                if(sabanas_str.equals("")) {
-                                    mensaje = mensaje + "sabanas:0;";
-                                }else {
-                                    mensaje = mensaje + "sabanas:" + sabanas_str + ";";
-                                }
-
-                                // Cantidad de toallas
-                                if(toallas_str.equals("")) {
-                                    mensaje = mensaje + "toallas:0;";
-                                }else {
-                                    mensaje = mensaje + "toallas:" + toallas_str + ";";
-                                }
-
-                                // Cantidad de jabones
-                                if(jabones_str.equals("")) {
-                                    mensaje = mensaje + "jabon:0";
-                                }else {
-                                    mensaje = mensaje + "jabon:" + jabones_str;
-                                }
-
-                                // Usuario que realiza la petición
-                                mensaje = mensaje + "&" + usuario_str;
-
-                                // Obtener clave privada de la DB
-                                try {
-                                    InputStream is = getResources().openRawResource(R.raw.db);
-                                    String db = readTextFile(is);
-                                    JSONObject reader = new JSONObject(db);
-                                    pvk = reader.getJSONObject("usuarios").getJSONObject(usuario_str).getString("priv");
-                                }catch (Exception e){
-                                    resultado.setText("Petición incorrecta");
-                                }
-                                if (!pvk.equals("")){
-                                    // Firmar y lanzar el pedido al servidor
-                                    try {
-                                        //Firmar
-                                        Signature sg = Signature.getInstance("SHA256WITHRSA");
-                                        PrivateKey prv_recovered = loadPrivateKey(pvk);
-                                        sg.initSign(prv_recovered);
-                                        sg.update(mensaje.getBytes());
-                                        byte[] firma = sg.sign();
-                                        String firmaMensaje = base64Encode(firma);
-
-                                        //Lanzar pedido al servidor de forma asíncrona
-                                        Client myClient = new Client(server, port, mensaje, firmaMensaje, resultado);
-                                        myClient.execute();
-                                    } catch (Exception e) {
-                                        resultado.setText("Petición incorrecta");
-                                    }
-//                                        finally {
-//                                            Toast.makeText(MainActivity.this, "Petición enviada correctamente", Toast.LENGTH_SHORT).show();
-//                                        }
-                                }
-                            }
-                    }).setNegativeButton(android.R.string.no, null).show();
         }
 
     public static PrivateKey loadPrivateKey(String key64) throws GeneralSecurityException {

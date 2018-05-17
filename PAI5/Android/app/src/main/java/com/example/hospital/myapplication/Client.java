@@ -52,7 +52,7 @@ public class Client extends AsyncTask<Void, Void, Void> {
                     //El mensaje se manda en dos pasos: primero el mensaje y luego la firma
                     os.writeBytes( message + "\n");
                     os.writeBytes(firmaMensaje + "\n");
-
+                    os.close();
                     //Obtener la respuesta del servidor
                     respuesta = is.readLine();
 
